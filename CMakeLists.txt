@@ -25,3 +25,9 @@ target_compile_definitions(audio-blur PRIVATE -DAUDIO_ON=1)
 
 target_link_libraries(noaudio-blur "${SNDFILE_LIBRARIES}")
 target_link_libraries(audio-blur "${SNDFILE_LIBRARIES}")
+
+# --keep: save PTX files in build directory
+# -src-in-ptx: Interleave source in PTX.
+# --generate-line-info: Generate line-number information for device code.
+#       - useful for profiling, and for showing location of errors in compute-sanitizer
+add_compile_options($<$<COMPILE_LANGUAGE:CUDA>:--keep;-src-in-ptx;--generate-line-info>)
