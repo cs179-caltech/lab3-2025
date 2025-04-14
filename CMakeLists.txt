@@ -11,7 +11,7 @@ pkg_check_modules(SNDFILE sndfile)
 set(LAB_SOURCE_FILES
         src/fft_convolve.cpp
         src/fft_convolve.cu
-        src/fft_concolve.cuh
+        src/fft_convolve.cuh
         src/ta_utilities.cpp
         src/ta_utilities.hpp
         src/ErrorCheck.cuh
