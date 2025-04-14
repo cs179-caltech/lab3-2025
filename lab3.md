@@ -1,7 +1,7 @@
 # CS 179: GPU Computing
 ## Assignment 3
 
-**Due: Wednesday, April 24, 2019 - 3:00 PM**
+**Due: Wednesday, April 23, 2025 - 3:00 PM**
 
 Put all answers in a file called `README.md`. After answering all of the
 questions, list how long part 1 and part 2 took. Feel free to leave any other
