@@ -115,11 +115,27 @@ As in Homework 1, to toggle between these two modes, set `AUDIO_ON` accordingly,
 We saw in class that various acoustic settings (e.g. rooms with lots of echo) can be modeled as LTI systems, and have impulse response. The assignment includes a sample input file (`example_testfile.wav`), as well as the impulse response of two different rooms (a truncated "silo" impulse, and that of a five-column room). Hence, convolving the original signal produces the audio "as played in these rooms"!
 
 ## Part 3: Profiling (10 points)
-Profile all your kernels with `ncu` (commands available in last assignment). Provide at least 2 screenshots of notable charts or statistics, and explain what is happening, including numbers.
+Profile all your kernels with NSight Compute
+- Example command: `ncu -o profile --set full ./cmake-build-release/audio-blur 512 80 ./resources/example_testfile.wav ./resources/silo_small.wav out.wav`
+
+For each kernel you wrote, provide at least 1 screenshot of a notable chart or statistics. Explain what is happening in each kernel, including numbers.
 For example:
-- What is the limiting factor of your kernels (memory or compute)? Provide numbers (e.g. global memory bandwidth) and explanation why
+- What is the limiting factor of your kernel (memory or compute)? Provide numbers (e.g. global memory bandwidth) and explanation why
 - What is the memory access pattern of a kernel, and is it ideal or how can it be improved?
 - How well does a kernel occupy the GPU? What changes could be made to improve occupancy?
 - Explain any important compiler optimizations (e.g. loop unrolling), or places where the compiler could not optimize (e.g. the compiler used local memory such as STL and LDL instructions)
 
 You don't have to answer these specific questions, these are just a starting point. We are NOT looking for any specific answers--the goal of this section is to get you used to NSight Compute. You can write down anything you find interesting, as long as you cite numbers and attempt an interpretation of the numbers.
+
+You may ignore the cuFFT-internal kernels, such as `multi_bluestein_fft`. However, if you notice something interesting in these kernels, feel free to note it down.
+
+My favorite sections in NSight Compute:
+- Memory Chart
+- GPU Speed of Light chart
+    - Be careful, the "Compute" bar does not give the full picture of compute; it is calculated by taking the maximum pipe utilization across all pipelines, so you need to check which pipeline is being utilized.
+- To figure out what is being computed: Compute Workload Analysis Pipe Utilization chart, or the Executed Instruction Mix chart.
+- "Source" tab:
+    - View SASS and reverse engineer compiler optimizations
+    - Check for warning symbols which indicate slowdowns
+- Warp State Statistics
+    - Especially important for kernels with suboptimal occupancy
