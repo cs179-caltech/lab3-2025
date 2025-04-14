@@ -15,6 +15,7 @@
 #include <cufft.h>
 
 #include "ta_utilities.hpp"
+#include "ErrorCheck.cuh"
 
 using std::cerr;
 using std::cout;
