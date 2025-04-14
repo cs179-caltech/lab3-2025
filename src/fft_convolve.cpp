@@ -32,21 +32,6 @@ float gaussian(float x, float mean, float std){
         * exp(-1.0/2.0 * pow((x - mean) / std, 2) );
 }
 
-/*
-Modified from:
-http://stackoverflow.com/questions/14038589/
-what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
-*/
-#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
-{
-    if (code != cudaSuccess) 
-    {
-        fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-        exit(code);
-    }
-}
-
 void gpuFFTchk(int errval){
     if (errval != CUFFT_SUCCESS){
         cerr << "Failed FFT call, error code " << errval << endl;
@@ -256,17 +241,17 @@ int large_gauss_test(int argc, char **argv){
     cudaEvent_t stop;
 
 #define START_TIMER() {                         \
-      gpuErrchk(cudaEventCreate(&start));       \
-      gpuErrchk(cudaEventCreate(&stop));        \
-      gpuErrchk(cudaEventRecord(start));        \
+      checkCuda(cudaEventCreate(&start));       \
+      checkCuda(cudaEventCreate(&stop));        \
+      checkCuda(cudaEventRecord(start));        \
     }
 
 #define STOP_RECORD_TIMER(name) {                           \
-      gpuErrchk(cudaEventRecord(stop));                     \
-      gpuErrchk(cudaEventSynchronize(stop));                \
-      gpuErrchk(cudaEventElapsedTime(&name, start, stop));  \
-      gpuErrchk(cudaEventDestroy(start));                   \
-      gpuErrchk(cudaEventDestroy(stop));                    \
+      checkCuda(cudaEventRecord(stop));                     \
+      checkCuda(cudaEventSynchronize(stop));                \
+      checkCuda(cudaEventElapsedTime(&name, start, stop));  \
+      checkCuda(cudaEventDestroy(start));                   \
+      checkCuda(cudaEventDestroy(stop));                    \
     }
 
 
@@ -449,7 +434,7 @@ int large_gauss_test(int argc, char **argv){
 
 
         // For testing and timing-control purposes only
-        gpuErrchk(cudaMemcpy(output_data_testarr, dev_out_data, padded_length * sizeof(cufftComplex), cudaMemcpyDeviceToHost));
+        checkCuda(cudaMemcpy(output_data_testarr, dev_out_data, padded_length * sizeof(cufftComplex), cudaMemcpyDeviceToHost));
 
 
         STOP_RECORD_TIMER(gpu_time_ms_convolve);
@@ -558,12 +543,7 @@ int large_gauss_test(int argc, char **argv){
             dev_max_abs_val, padded_length);
 
         // Check for errors on kernel call
-        err = cudaGetLastError();
-        if  (cudaSuccess != err){
-                cerr << "Error " << cudaGetErrorString(err) << endl;
-        } else {
-                cerr << "No kernel error detected" << endl;
-        }
+        checkCuda(cudaGetLastError());
 
 
         /* NOTE: This is a function in the fft_convolve_cuda.cu file,
@@ -573,19 +553,12 @@ int large_gauss_test(int argc, char **argv){
             dev_max_abs_val, padded_length);
 
         // Check for errors on kernel call
-        err = cudaGetLastError();
-        if  (cudaSuccess != err){
-                cerr << "Error " << cudaGetErrorString(err) << endl;
-        } else {
-                cerr << "No kernel error detected" << endl;
-        }
-
-
+        checkCuda(cudaGetLastError());
 
         STOP_RECORD_TIMER(gpu_time_ms_norm);
 
         // For testing purposes only
-        gpuErrchk( cudaMemcpy(&max_abs_val_fromGPU, 
+        checkCuda( cudaMemcpy(&max_abs_val_fromGPU, 
             dev_max_abs_val, 1 * sizeof(float), cudaMemcpyDeviceToHost) );
 
 
@@ -627,9 +600,9 @@ int large_gauss_test(int argc, char **argv){
 
 
     // Free memory on GPU
-    cudaFree(dev_input_data);
-    cudaFree(dev_impulse_v);
-    cudaFree(dev_out_data);
+    checkCuda(cudaFree(dev_input_data));
+    checkCuda(cudaFree(dev_impulse_v));
+    checkCuda(cudaFree(dev_out_data));
 
     // Free memory on host
     free(input_data);
@@ -663,7 +636,6 @@ int main(int argc, char **argv){
     // Please leave these enabled as a courtesy to your fellow classmates
     // if you are using a shared computer. You may ignore or remove these
     // functions if you are running on your local machine.
-    TA_Utilities::select_coldest_GPU();
     int max_time_allowed_in_seconds = 90;
     TA_Utilities::enforce_time_limit(max_time_allowed_in_seconds);
 

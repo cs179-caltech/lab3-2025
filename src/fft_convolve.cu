@@ -12,9 +12,6 @@
 /* 
 Atomic-max function. You may find it useful for normalization.
 
-We haven't really talked about this yet, but __device__ functions not
-only are run on the GPU, but are called from within a kernel.
-
 Source: 
 http://stackoverflow.com/questions/17399119/
 cant-we-use-atomic-operations-for-floating-point-variables-in-cuda
