@@ -23,8 +23,12 @@ add_executable(audio-blur "${LAB_SOURCE_FILES}")
 target_compile_definitions(noaudio-blur PRIVATE -DAUDIO_ON=0)
 target_compile_definitions(audio-blur PRIVATE -DAUDIO_ON=1)
 
-target_link_libraries(noaudio-blur "${SNDFILE_LIBRARIES}")
-target_link_libraries(audio-blur "${SNDFILE_LIBRARIES}")
+set(LAB_LINK_LIBRARIES
+    "${SNDFILE_LIBRARIES}"
+    CUDA::cufft
+)
+target_link_libraries(noaudio-blur "${LAB_LINK_LIBRARIES}")
+target_link_libraries(audio-blur "${LAB_LINK_LIBRARIES}")
 
 # --keep: save PTX files in build directory
 # -src-in-ptx: Interleave source in PTX.
